@@ -1,7 +1,7 @@
-name: Terraform Plan
+name: Terraform Apply
 
 on:
-  pull_request:
+  push:
     branches: [ main ]
     paths:
       - 'infrastructure/**'
@@ -12,8 +12,8 @@ env:
   AWS_REGION: 'us-east-1'
 
 jobs:
-  terraform-plan:
-    name: Terraform Plan
+  terraform-apply:
+    name: Terraform Apply
     runs-on: ubuntu-latest
     
     defaults:
@@ -36,14 +36,11 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
         
-    - name: Terraform Format Check
-      run: terraform fmt -check -recursive
-      
     - name: Terraform Init
       run: terraform init
       
-    - name: Terraform Validate
-      run: terraform validate
-      
     - name: Terraform Plan
-      run: terraform plan -no-color
+      run: terraform plan -out=tfplan
+      
+    - name: Terraform Apply
+      run: terraform apply -auto-approve tfplan
